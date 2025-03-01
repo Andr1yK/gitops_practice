@@ -1,55 +1,48 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { tasksAPI, Task as ApiTask, CreateTaskInput, UpdateTaskInput } from '../services/api';
 import '../styles/TasksPage.css';
 
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  status: 'todo' | 'in_progress' | 'completed';
-  createdAt: string;
-}
+// Ensure our Task type matches the API
+type Task = ApiTask;
 
 const TasksPage = () => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateTaskInput>({
     title: '',
     description: '',
   });
 
-  // Mock data instead of API calls for now
+  // Load tasks from API
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const mockTasks = [
-        {
-          id: 1,
-          title: 'Complete project setup',
-          description: 'Initialize the project structure and install dependencies',
-          status: 'completed',
-          createdAt: '2023-04-01T10:00:00Z',
-        },
-        {
-          id: 2,
-          title: 'Create frontend components',
-          description: 'Design and implement UI components for the application',
-          status: 'in_progress',
-          createdAt: '2023-04-02T14:30:00Z',
-        },
-        {
-          id: 3,
-          title: 'Connect to backend API',
-          description: 'Set up API service and connect frontend to backend',
-          status: 'todo',
-          createdAt: '2023-04-03T09:15:00Z',
-        },
-      ] as Task[];
-      
-      setTasks(mockTasks);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    const loadTasks = async () => {
+      try {
+        // If not authenticated, redirect to login
+        if (!authLoading && !isAuthenticated) {
+          navigate('/login');
+          return;
+        }
+
+        if (isAuthenticated) {
+          const data = await tasksAPI.getAllTasks();
+          setTasks(data);
+        }
+      } catch (err: any) {
+        console.error('Error loading tasks:', err);
+        setError(err.response?.data?.message || 'Failed to load tasks');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTasks();
+  }, [isAuthenticated, authLoading, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -59,33 +52,45 @@ const TasksPage = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
-    if (!formData.title.trim()) {
+    if (!formData.title?.trim()) {
       setError('Title is required');
       return;
     }
     
-    // Create a new task (mock implementation)
-    const newTask: Task = {
-      id: Date.now(),
-      title: formData.title,
-      description: formData.description,
-      status: 'todo',
-      createdAt: new Date().toISOString(),
-    };
-    
-    setTasks([...tasks, newTask]);
-    setFormData({ title: '', description: '' });
-    setError(null);
+    try {
+      // Create task via API
+      const newTask = await tasksAPI.createTask({
+        ...formData,
+        status: 'TODO'
+      });
+      
+      // Add to state
+      setTasks([newTask, ...tasks]);
+      setFormData({ title: '', description: '' });
+      setError(null);
+    } catch (err: any) {
+      console.error('Error creating task:', err);
+      setError(err.response?.data?.message || 'Failed to create task');
+    }
   };
 
-  const handleStatusChange = (taskId: number, status: 'todo' | 'in_progress' | 'completed') => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, status } : task
-    ));
+  const handleStatusChange = async (taskId: number, status: 'todo' | 'in_progress' | 'completed') => {
+    try {
+      // Update via API
+      await tasksAPI.updateTask(taskId, { status });
+      
+      // Update state
+      setTasks(tasks.map(task => 
+        task.id === taskId ? { ...task, status } : task
+      ));
+    } catch (err: any) {
+      console.error('Error updating task:', err);
+      setError(err.response?.data?.message || 'Failed to update task');
+    }
   };
 
   const getStatusClass = (status: string) => {

@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../services/api';
 import '../styles/Auth.css';
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -11,6 +13,7 @@ const RegisterPage = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -41,19 +44,16 @@ const RegisterPage = () => {
     
     setLoading(true);
     setError(null);
+    setSuccess(false);
     
-    // Mock registration process
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call register API
+      await authAPI.register(formData.name, formData.email, formData.password);
       
-      // For demo purposes, just log the data
-      console.log('Registration attempt:', { name: formData.name, email: formData.email });
+      // Show success message
+      setSuccess(true);
       
-      // Redirect would happen here after successful registration
-      // history.push('/login');
-      
-      // For now, just reset the form
+      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -61,8 +61,13 @@ const RegisterPage = () => {
         confirmPassword: ''
       });
       
-    } catch (err) {
-      setError('Registration failed. Please try again.');
+      // Redirect to login page after 2 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+      
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -76,6 +81,7 @@ const RegisterPage = () => {
         
         <form className="auth-form" onSubmit={handleSubmit}>
           {error && <div className="alert alert-danger">{error}</div>}
+          {success && <div className="alert alert-success">Registration successful! Redirecting to login...</div>}
           
           <div className="form-group">
             <label htmlFor="name">Name</label>

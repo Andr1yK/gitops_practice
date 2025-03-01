@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import '../styles/Auth.css';
 
 const LoginPage = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -30,26 +34,15 @@ const LoginPage = () => {
     setLoading(true);
     setError(null);
     
-    // Mock login process
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call our login method from the auth context
+      await login(formData.email, formData.password);
       
-      // For demo purposes, just log the credentials
-      console.log('Login attempt:', { email: formData.email });
-      
-      // Redirect would happen here after successful login
-      // history.push('/tasks');
-      
-      // For now, just reset the form
-      setFormData({
-        email: '',
-        password: ''
-      });
+      // Redirect after successful login
+      navigate('/tasks');
       
     } catch (err) {
       setError('Invalid email or password');
-    } finally {
       setLoading(false);
     }
   };
