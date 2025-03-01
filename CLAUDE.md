@@ -2,10 +2,13 @@
 
 ## Commands
 - Backend dev: `cd backend && npm run dev` or `make dev`
+- Frontend dev: `cd frontend && npm run dev` or `make dev-frontend`
+- Full stack dev: `make dev-all` (runs frontend, backend, and local DB)
 - Docker dev: `make docker-dev` or `cd backend && docker-compose up`
 - Build: `make build` or `cd backend && npm run build`
-- Lint: `cd backend && npm run lint`
-- Format: `cd backend && npm run format`
+- Build frontend: `make build-frontend` or `cd frontend && npm run build`
+- Lint: `cd backend && npm run lint` or `cd frontend && npm run lint`
+- Format: `cd backend && npm run format` or `cd frontend && npm run format`
 - Test: `make test` or `cd backend && npm test`
 - Single test: `cd backend && npx jest path/to/test.ts`
 - Database: `make db-setup` (migrate) or `cd backend && npm run prisma:studio` (UI)
