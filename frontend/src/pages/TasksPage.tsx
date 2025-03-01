@@ -65,7 +65,7 @@ const TasksPage = () => {
       // Create task via API
       const newTask = await tasksAPI.createTask({
         ...formData,
-        status: 'todo'
+        status: 'TODO'
       });
       
       // Add to state
