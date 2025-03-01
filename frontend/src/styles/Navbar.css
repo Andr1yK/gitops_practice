@@ -33,6 +33,29 @@
   color: var(--primary-color);
 }
 
+.user-welcome {
+  display: flex;
+  align-items: center;
+}
+
+.user-welcome .nav-link {
+  color: var(--secondary-color);
+  font-weight: 600;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+}
+
+.logout-button:hover {
+  color: var(--primary-color);
+}
+
 @media (max-width: 768px) {
   .navbar-container {
     flex-direction: column;
