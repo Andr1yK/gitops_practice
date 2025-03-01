@@ -11,6 +11,11 @@ dev-frontend:
 	@echo "Starting frontend in development mode..."
 	@cd frontend && npm run dev
 
+dev-all:
+	@echo "Starting both frontend and backend in development mode..."
+	@make db-local
+	@(cd backend && npm run dev) & (cd frontend && npm run dev)
+
 # Docker development environment
 docker-dev:
 	@echo "Starting backend with Docker in development mode..."
@@ -73,7 +78,8 @@ clean:
 help:
 	@echo "Available commands:"
 	@echo "  make dev              - Start backend in development mode"
-	@echo "  make dev-frontend     - Start frontend in development mode"
+	@echo "  make dev-frontend     - Start frontend in development mode" 
+	@echo "  make dev-all          - Start both frontend and backend in development mode"
 	@echo "  make docker-dev       - Start backend with Docker in development mode"
 	@echo "  make install          - Install backend dependencies"
 	@echo "  make install-frontend - Install frontend dependencies"
