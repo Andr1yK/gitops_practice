@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { tasksAPI, Task as ApiTask, CreateTaskInput, UpdateTaskInput } from '../services/api';
+import { tasksAPI, Task as ApiTask, CreateTaskInput } from '../services/api';
 import '../styles/TasksPage.css';
 
 // Ensure our Task type matches the API
@@ -10,7 +10,7 @@ type Task = ApiTask;
 const TasksPage = () => {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,20 +54,20 @@ const TasksPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate form
     if (!formData.title?.trim()) {
       setError('Title is required');
       return;
     }
-    
+
     try {
       // Create task via API
       const newTask = await tasksAPI.createTask({
         ...formData,
         status: 'TODO'
       });
-      
+
       // Add to state
       setTasks([newTask, ...tasks]);
       setFormData({ title: '', description: '' });
@@ -78,13 +78,13 @@ const TasksPage = () => {
     }
   };
 
-  const handleStatusChange = async (taskId: number, status: 'todo' | 'in_progress' | 'completed') => {
+  const handleStatusChange = async (taskId: number, status: 'TODO' | 'IN_PROGRESS' | 'DONE') => {
     try {
       // Update via API
       await tasksAPI.updateTask(taskId, { status });
-      
+
       // Update state
-      setTasks(tasks.map(task => 
+      setTasks(tasks.map(task =>
         task.id === taskId ? { ...task, status } : task
       ));
     } catch (err: any) {
@@ -95,9 +95,9 @@ const TasksPage = () => {
 
   const getStatusClass = (status: string) => {
     switch (status) {
-      case 'todo': return 'status-todo';
-      case 'in_progress': return 'status-progress';
-      case 'completed': return 'status-completed';
+      case 'TODO': return 'status-todo';
+      case 'IN_PROGRESS': return 'status-progress';
+      case 'DONE': return 'status-completed';
       default: return '';
     }
   };
@@ -109,12 +109,12 @@ const TasksPage = () => {
   return (
     <div className="container tasks-page">
       <h1>My Tasks</h1>
-      
+
       <section className="section">
         <h2>Add New Task</h2>
         <form className="task-form" onSubmit={handleSubmit}>
           {error && <div className="alert alert-danger">{error}</div>}
-          
+
           <div className="form-group">
             <label htmlFor="title">Title</label>
             <input
@@ -126,7 +126,7 @@ const TasksPage = () => {
               placeholder="Enter task title"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="description">Description</label>
             <textarea
@@ -138,11 +138,11 @@ const TasksPage = () => {
               rows={3}
             />
           </div>
-          
+
           <button type="submit" className="btn btn-success">Add Task</button>
         </form>
       </section>
-      
+
       <section className="section">
         <h2>Task List</h2>
         {tasks.length === 0 ? (
@@ -164,9 +164,9 @@ const TasksPage = () => {
                     onChange={(e) => handleStatusChange(task.id, e.target.value as any)}
                     className="status-select"
                   >
-                    <option value="todo">To Do</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
+                    <option value="TODO">To Do</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="DONE">Completed</option>
                   </select>
                 </div>
               </div>

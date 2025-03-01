@@ -48,7 +48,7 @@ export interface Task {
   id: number;
   title: string;
   description?: string;
-  status: 'todo' | 'in_progress' | 'completed';
+  status: 'TODO' | 'IN_PROGRESS' | 'DONE';
   category?: string;
   userId: number;
   createdAt: string;
@@ -58,14 +58,14 @@ export interface Task {
 export interface CreateTaskInput {
   title: string;
   description?: string;
-  status?: 'todo' | 'in_progress' | 'completed';
+  status?: 'TODO' | 'IN_PROGRESS' | 'DONE';
   category?: string;
 }
 
 export interface UpdateTaskInput {
   title?: string;
   description?: string;
-  status?: 'todo' | 'in_progress' | 'completed';
+  status?: 'TODO' | 'IN_PROGRESS' | 'DONE';
   category?: string;
 }
 
