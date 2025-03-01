@@ -58,6 +58,10 @@ db-reset:
 	@echo "Resetting database..."
 	@cd backend && npx prisma migrate reset --force
 
+db-local:
+	@echo "Starting local Postgres database..."
+	@cd backend && docker-compose up postgres -d
+
 # Clean
 clean:
 	@echo "Cleaning build artifacts..."
@@ -79,4 +83,5 @@ help:
 	@echo "  make test-frontend    - Run frontend tests"
 	@echo "  make db-setup         - Set up the database with migrations"
 	@echo "  make db-reset         - Reset the database (caution: deletes all data)"
+	@echo "  make db-local         - Start only the local Postgres database in Docker"
 	@echo "  make clean            - Remove build artifacts and node_modules"
